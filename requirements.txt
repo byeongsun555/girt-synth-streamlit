@@ -1,0 +1,9 @@
+streamlit
+streamlit-drawable-canvas
+diffusers
+transformers
+accelerate
+safetensors
+numpy
+opencv-python-headless
+Pillow

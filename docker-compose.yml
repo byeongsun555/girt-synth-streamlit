@@ -1,0 +1,99 @@
+services:
+  minio:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    container_name: multi-synth-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "${MINIO_API_PORT:-9020}:9000"
+      - "${MINIO_CONSOLE_PORT:-9021}:9001"
+    volumes:
+      - ./minio-data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:-minioadmin}
+    restart: unless-stopped
+
+  synth-api:
+    build:
+      context: .
+      dockerfile: web/backend/Dockerfile
+    container_name: multi-synth-api
+    working_dir: /workspace/multi_synth_streamlit/web/backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/workspace/multi_synth_streamlit
+      - ../foot_make_dataset:/workspace/foot_make_dataset
+      - ./.cache/huggingface:/workspace/.cache/huggingface
+    environment:
+      HF_HOME: /workspace/.cache/huggingface
+      HF_TOKEN: ${HF_TOKEN:-}
+      MINIO_ENABLED: ${MINIO_ENABLED:-true}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
+      MINIO_PUBLIC_ENDPOINT: ${MINIO_PUBLIC_ENDPOINT:-localhost:9020}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-synthetic-data}
+      MINIO_SECURE: ${MINIO_SECURE:-false}
+      TRANSFORMERS_CACHE: /workspace/.cache/huggingface
+      PYTHONUNBUFFERED: "1"
+      NVIDIA_VISIBLE_DEVICES: "6,7"
+      NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["6", "7"]
+              capabilities: [gpu]
+    shm_size: "8gb"
+    depends_on:
+      - minio
+    restart: unless-stopped
+
+  synth-web:
+    build:
+      context: .
+      dockerfile: web/frontend/Dockerfile
+    container_name: multi-synth-web
+    working_dir: /workspace/multi_synth_streamlit/web/frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web/frontend:/workspace/multi_synth_streamlit/web/frontend
+      - /workspace/multi_synth_streamlit/web/frontend/node_modules
+    environment:
+      VITE_API_PROXY_TARGET: http://synth-api:8000
+    depends_on:
+      - synth-api
+    restart: unless-stopped
+
+  synth-streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: multi-synth-streamlit
+    working_dir: /workspace/multi_synth_streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./:/workspace/multi_synth_streamlit
+      - ../diffusers:/workspace/diffusers:ro
+      - ../foot_make_dataset:/workspace/foot_make_dataset
+      - ./.cache/huggingface:/workspace/.cache/huggingface
+    environment:
+      HF_HOME: /workspace/.cache/huggingface
+      HF_TOKEN: ${HF_TOKEN:-}
+      TRANSFORMERS_CACHE: /workspace/.cache/huggingface
+      PYTHONUNBUFFERED: "1"
+      NVIDIA_VISIBLE_DEVICES: "6,7"
+      NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["6", "7"]
+              capabilities: [gpu]
+    shm_size: "8gb"
+    restart: unless-stopped

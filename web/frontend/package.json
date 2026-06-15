@@ -1,0 +1,28 @@
+{
+  "name": "multi-synth-demo",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.0.0-beta.4",
+    "@tailwindcss/vite": "4.1.0",
+    "@vitejs/plugin-react": "4.3.4",
+    "clsx": "latest",
+    "lucide-react": "latest",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "tailwindcss": "4.1.0",
+    "vite": "6.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "5.7.2"
+  }
+}

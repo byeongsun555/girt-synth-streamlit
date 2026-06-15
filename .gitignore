@@ -1,0 +1,28 @@
+# Secrets & credentials
+.env
+.env.*
+*.pem
+*.key
+.ssh/
+
+# Large caches / model weights
+.cache/
+
+# Generated data / runtime state
+minio-data/
+outputs/
+tmp_*/
+
+# Build artifacts
+web/frontend/dist/
+web/frontend/node_modules/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store

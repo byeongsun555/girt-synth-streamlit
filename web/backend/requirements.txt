@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+python-multipart
+diffusers
+transformers
+accelerate
+safetensors
+numpy
+opencv-python-headless
+Pillow
+minio
