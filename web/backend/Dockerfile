@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     HF_HOME=/workspace/.cache/huggingface \
     TRANSFORMERS_CACHE=/workspace/.cache/huggingface
 
-WORKDIR /workspace/multi_synth_gradio/web/backend
+WORKDIR /workspace/multi_synth_streamlit/web/backend
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 \

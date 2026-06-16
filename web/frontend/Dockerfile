@@ -1,6 +1,6 @@
 FROM node:22-bookworm-slim
 
-WORKDIR /workspace/multi_synth_gradio/web/frontend
+WORKDIR /workspace/multi_synth_streamlit/web/frontend
 
 COPY web/frontend/package*.json ./
 RUN npm ci
