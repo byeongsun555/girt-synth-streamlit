@@ -968,7 +968,7 @@ def generate_wildfire_image(
             hint_image = make_wildfire_hint_image(crop_image, crop_hint_mask)
             work_image = resize_to_multiple(hint_image, max_side=int(output_size), multiple=16, resample=Image.BICUBIC)
             pipe = get_wildfire_pipeline()
-            with torch.inference_mode(), autocast_context(torch.bfloat16 if DEVICE == "cuda" else None):
+            with torch.inference_mode():
                 result = pipe(
                     prompt=final_prompt,
                     image=work_image,
@@ -1011,7 +1011,7 @@ def generate_wildfire_image(
                 "subtle char only at the immediate flame base."
             )
             pipe = get_wildfire_fill_pipeline()
-            with torch.inference_mode(), autocast_context(torch.bfloat16 if DEVICE == "cuda" else None):
+            with torch.inference_mode():
                 generated_work = pipe(
                     prompt=fill_prompt,
                     image=work_image,
@@ -1029,7 +1029,7 @@ def generate_wildfire_image(
             final_prompt = fill_prompt
     else:
         pipe = get_wildfire_pipeline()
-        with torch.inference_mode(), autocast_context(torch.bfloat16 if DEVICE == "cuda" else None):
+        with torch.inference_mode():
             result = pipe(
                 prompt=final_prompt,
                 image=init_image,

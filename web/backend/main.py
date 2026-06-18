@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import io
+import logging
+import traceback
 
-from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import Response
+from fastapi.responses import JSONResponse, Response
 from PIL import Image
+
+logger = logging.getLogger("synth_service.api")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
 
 from synth_service import (
     DEVICE,
@@ -52,6 +57,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    """Log full traceback for any uncaught exception so we can debug device/dtype errors."""
+    logger.error("Unhandled exception on %s %s\n%s", request.method, request.url.path, traceback.format_exc())
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"{type(exc).__name__}: {exc}"},
+    )
 
 
 async def upload_to_image(upload: UploadFile) -> tuple[Image.Image, str]:
